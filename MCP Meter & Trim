@@ -7,7 +7,7 @@
    
    USAGE: Insert it between any two plugins in your track's FX chain. In the Mixer (MCP), right-click the plugin in the slot list and check Show embedded UI in MCP
    Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the right value
-   shows the gain. Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the gain back to $0.0.
+   shows the gain. Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the gain back to 0.0.
    To set the base level, open the plugin and adjust Base Level (dBFS). You can also switch between VU Meter mode (300ms RMS integration with mechanical ballistics) 
    and Peak Meter mode (instantaneous sample peak detection).
    
@@ -16,7 +16,7 @@
    - standard +3.0103 dB calibration factor is applied, so that a sine wave at your chosen Base Level (e.g., -18 dBFS) matches 0 VU on the reference ZenoMOD and 
    Blenheim meters.
    - the digital readout catches peak VU levels instantly, holds them for 2 seconds, and decays smoothly (15 dB/s), making levels clear and easy to read
-   - the integration engine uses a true 2nd-order mechanical needle simulation (zeta = 0.65, omega_n = 2? / 0.300s). This captures the exact inertia, acceleration, and
+   - the integration engine uses a true 2nd-order mechanical needle simulation (zeta = 0.65, omega_n = 2pi / 0.300s). This captures the exact inertia, acceleration, and
    overshoot behavior of physical VU movements matching ZenoMOD and Blenheim.
 */
 
@@ -36,13 +36,26 @@ vu_v = 0;
 peak_val = -100; // Instantaneous peak tracker
 peak_hold_val = -100;
 peak_hold_time = 0;
+abs_peak_val = -100; // Absolute mode tracker (highest left readout value)
+last_play_state = 0;
 last_click = 0;
 dbl_click = 0;
 last_gfx_time = time_precise();
 
 @slider
 gain_amp = 10^(slider1 / 20);
+mode != slider3 ? abs_peak_val = -100; // Reset center peak tracker on mode switch
 mode = slider3; // 0 = VU, 1 = Peak
+
+@block
+// Reset meter ballistics and peak tracking when playback starts
+(play_state & 1) && !(last_play_state & 1) ? (
+  vu_x = 0;
+  vu_v = 0;
+  peak_hold_val = -100;
+  abs_peak_val = -100;
+);
+last_play_state = play_state;
 
 @sample
 // Apply Gain Trim
@@ -56,7 +69,7 @@ mode == 0 ? (
   // 1. VU METER MODE (ANSI C16.5 300ms RMS Integration)
   pwr = 0.5 * (s0 * s0 + s1 * s1);
   dt_s = 1.0 / srate;
-  omega_n = 20.943951; // 2 * $pi / 0.300
+  omega_n = 20.943951; // 2 * pi / 0.300
   acc = (omega_n * omega_n) * (pwr - vu_x) - (1.3 * omega_n) * vu_v;
   vu_v += acc * dt_s;
   vu_x += vu_v * dt_s;
@@ -103,6 +116,11 @@ peak_hold_rel = peak_hold_val - slider2;
 // Clean up micro-rounding near zero
 abs(peak_hold_rel) < 0.05 ? peak_hold_rel = 0.0;
 
+// Track the maximum relative peak value displayed on the left readout
+peak_hold_val > -59.9 ? (
+  peak_hold_rel > abs_peak_val ? abs_peak_val = peak_hold_rel;
+);
+
 // --- LINE 1: METER BAR (Green up to Base, Red above) ---
 min_rel = -40;
 max_rel = 10;
@@ -144,6 +162,20 @@ peak_hold_rel > 0.049 ? (
 gfx_x = 4; gfx_y = text_y;
 peak_hold_val <= -59.9 ? gfx_drawstr("-Inf") : gfx_drawnumber(peak_hold_rel, 1);
 
+// Center Readout: Exact copy of maximum left readout value (Resets on Play / Double-Click)
+abs_peak_val > 0.049 ? (
+  gfx_r = 1.0; gfx_g = 0.25; gfx_b = 0.25; // Bright Red warning (same red as left)
+) : (
+  gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9; // Light Grey / White
+);
+
+#pk_str = "";
+abs_peak_val <= -59.9 ? sprintf(#pk_str, "-Inf") : sprintf(#pk_str, "%.1f", abs_peak_val);
+gfx_measurestr(#pk_str, pk_w, pk_h);
+gfx_x = floor((gfx_w - pk_w) / 2);
+gfx_y = text_y;
+gfx_drawstr(#pk_str);
+
 // Right Readout: Volume Adjustment (Right-Aligned, No + Sign)
 gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9;
 
@@ -167,6 +199,7 @@ mouse_cap & 1 ? (
       dbl_click = 1;
       slider1 = 0;
       sliderchange(slider1);
+      abs_peak_val = -100; // Reset center readout on double-click
     ) : dbl_click = 0;
     
     last_click = time_precise();
