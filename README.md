@@ -45,7 +45,8 @@ The plugin renders in a compact 30px-height slot within the Mixer Control Panel 
 * **Top Line:** An 8px horizontal meter bar representing your signal relative to the Base Level threshold (Green up to $0.0$, Red above).
 * **Bottom Line:** 
   * **Left Readout:** Measured signal level relative to target (e.g., `-1.5` or `2.1`). Turns bright red when strictly exceeding $0.0$.
-  * **Right Readout:** Current Gain Trim volume adjustment (right-aligned).
+  * **Center Readout:** Peak signal level relative to target.
+  * **Right Readout:** Current Gain Trim volume adjustment.
 
 ### Mouse Gestures & Controls
 * **Adjust Gain Trim:** Click and drag **vertically** anywhere on the plugin display in the mixer. Drag **up** to boost volume, drag **down** to cut volume.
@@ -56,4 +57,4 @@ The plugin renders in a compact 30px-height slot within the Mixer Control Panel 
 ---
 
 ## Fair Warning
-This plugin was vibe-coded by Gemini Pro / Extended. It was thoroughly tested by me and in every aspect works as expected. It was run alongside ZenoMOD and Blenheim VU Meter plugins and visually provided the same measurement in VU mode, but I am not a mathematician, so the original calculations in the script are not manually verified.
+This plugin was vibe-coded by Gemini Pro / Extended. It was thoroughly tested in multiple rounds and in every aspect works as expected. It was run alongside ZenoMOD and Blenheim VU Meter plugins and visually provided the same measurement in VU mode, but I am not a mathematician, so the calculations in the script are not manually verified.
