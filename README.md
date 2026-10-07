@@ -52,3 +52,8 @@ The plugin renders in a compact 30px-height slot within the Mixer Control Panel 
 * **Ultra-Fine Adjustment:** Hold the **Shift** key while dragging for high-precision sub-decibel changes ($100\text{ pixels} = 1.0\text{ dB}$).
 * **Reset to 0 dB:** **Double-click** anywhere on the plugin display to instantly reset the Gain Trim to $0.0\text{ dB}$.
 * **Plugin Configuration Window:** Open the full plugin window to adjust sliders for **Gain Trim (dB)**, **Base Level (dBFS)**, and the **Meter Mode** toggle switch (`VU (RMS)` vs `Peak`).
+
+---
+
+## Fair Warning
+This plugin was vibe-coded by Gemini Pro / Extended. It was thoroughly tested by me and in every aspect works as expected. It was run alongside ZenoMOD and Blenheim VU Meter plugins and visually provided the same measurement in VU mode, but I am not a mathematician, so the original calculations in the script are not manually verified.
