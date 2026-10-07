@@ -1,0 +1,183 @@
+/*
+   METER AND TRIM (Rose Hill Tribe)
+   VU (RMS) / Peak meter and integrated trim control plugin
+   
+   INSTALLATION: In REAPER, go to the Options menu › Show REAPER resource path in explorer/finder. Open the Effects folder and move this file there.
+   Open REAPER’s FX browser (press Shift + F or click FX on a track). For the first time press F5 to refresh the plugin list. Search for plugin Meter & Trim
+   
+   USAGE: Insert it between any two plugins in your track's FX chain. In the Mixer (MCP), right-click the plugin in the slot list and check Show embedded UI in MCP
+   Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the right value
+   shows the gain. Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the gain back to $0.0.
+   To set the base level, open the plugin and adjust Base Level (dBFS). You can also switch between VU Meter mode (300ms RMS integration with mechanical ballistics) 
+   and Peak Meter mode (instantaneous sample peak detection).
+   
+   INTERNALS:
+   - VU sample peak calculations is standard 300 ms RMS integration across combined stereo channels (0.5 * (L^2 + R^2)).
+   - standard +3.0103 dB calibration factor is applied, so that a sine wave at your chosen Base Level (e.g., -18 dBFS) matches 0 VU on the reference ZenoMOD and 
+   Blenheim meters.
+   - the digital readout catches peak VU levels instantly, holds them for 2 seconds, and decays smoothly (15 dB/s), making levels clear and easy to read
+   - the integration engine uses a true 2nd-order mechanical needle simulation (zeta = 0.65, omega_n = 2? / 0.300s). This captures the exact inertia, acceleration, and
+   overshoot behavior of physical VU movements matching ZenoMOD and Blenheim.
+*/
+
+desc: Meter & Trim
+slider1:0<-24,24,0.1>Gain Trim (dB)
+slider2:-18<-36,0,1>Base Level (dBFS)
+slider3:0<0,1,1{VU (RMS),Peak}>Meter Mode
+
+in_pin:left
+in_pin:right
+out_pin:left
+out_pin:right
+
+@init
+vu_x = 0; // Needle position for VU
+vu_v = 0; 
+peak_val = -100; // Instantaneous peak tracker
+peak_hold_val = -100;
+peak_hold_time = 0;
+last_click = 0;
+dbl_click = 0;
+last_gfx_time = time_precise();
+
+@slider
+gain_amp = 10^(slider1 / 20);
+mode = slider3; // 0 = VU, 1 = Peak
+
+@sample
+// Apply Gain Trim
+s0 = spl0 * gain_amp;
+s1 = spl1 * gain_amp;
+spl0 = s0;
+spl1 = s1;
+
+// --- METER ENGINE SELECTION ---
+mode == 0 ? (
+  // 1. VU METER MODE (ANSI C16.5 300ms RMS Integration)
+  pwr = 0.5 * (s0 * s0 + s1 * s1);
+  dt_s = 1.0 / srate;
+  omega_n = 20.943951; // 2 * $pi / 0.300
+  acc = (omega_n * omega_n) * (pwr - vu_x) - (1.3 * omega_n) * vu_v;
+  vu_v += acc * dt_s;
+  vu_x += vu_v * dt_s;
+  vu_x = max(0, vu_x);
+  
+  // Calibrated VU Level (+3.0103dB sine offset)
+  current_db = 10 * (log10(max(vu_x, 0.000000000001)) / log10(10)) + 3.0103;
+) : (
+  // 2. PEAK METER MODE (Sample Peak Detection)
+  inst_peak = max(abs(s0), abs(s1));
+  current_db = 20 * (log10(max(inst_peak, 0.000000000001)) / log10(10));
+);
+
+@gfx 120 30
+// Set Font: Index=1, "Arial", Size=13, Weight=0 (Not Bold)
+gfx_setfont(1, "Arial", 13, 0); 
+
+// Dark Background
+gfx_r = 0.12; gfx_g = 0.12; gfx_b = 0.12;
+gfx_rect(0, 0, gfx_w, gfx_h);
+
+bar_h = 8;
+text_y = 10;
+
+db_rel = current_db - slider2; // Level relative to Base Level
+
+// --- PEAK HOLD LOGIC (2.0 Seconds) ---
+now = time_precise();
+dt = max(0.001, now - last_gfx_time);
+last_gfx_time = now;
+
+current_db > peak_hold_val ? (
+  peak_hold_val = current_db;
+  peak_hold_time = now;
+) : (
+  now - peak_hold_time > 2.0 ? ( // Holds peak value for 2.0 seconds
+    peak_hold_val = max(-100, peak_hold_val - 12 * dt); // Smooth 12dB/s decay
+  );
+);
+
+// Calculate Peak Hold level relative to Base Level (0 = Target)
+peak_hold_rel = peak_hold_val - slider2;
+
+// Clean up micro-rounding near zero
+abs(peak_hold_rel) < 0.05 ? peak_hold_rel = 0.0;
+
+// --- LINE 1: METER BAR (Green up to Base, Red above) ---
+min_rel = -40;
+max_rel = 10;
+range = max_rel - min_rel;
+
+zero_pct = (0 - min_rel) / range;
+zero_x = 2 + (gfx_w - 4) * zero_pct;
+
+val_pct = max(0, min(1, (db_rel - min_rel) / range));
+green_pct = min(val_pct, zero_pct);
+green_w = (gfx_w - 4) * green_pct;
+
+// Green Segment (up to Base Level 0)
+gfx_r = 0.2; gfx_g = 0.8; gfx_b = 0.2;
+gfx_rect(2, 2, green_w, bar_h);
+
+// Red Segment (Overshoot above Base Level 0)
+db_rel > 0.05 ? (
+  red_pct = min(val_pct, 1) - zero_pct;
+  red_w = (gfx_w - 4) * red_pct;
+  gfx_r = 0.9; gfx_g = 0.1; gfx_b = 0.1;
+  gfx_rect(2 + green_w, 2, red_w, bar_h);
+);
+
+// Base Level Marker Line
+gfx_r = 0.4; gfx_g = 0.4; gfx_b = 0.4;
+gfx_line(zero_x, 2, zero_x, 2 + bar_h);
+
+// --- LINE 2: DIGITAL READOUTS ---
+
+// Left Readout: Measured Level Relative to Base
+// Highlight Bright Red ONLY if rounded value > 0.0 (i.e. >= 0.1)
+peak_hold_rel > 0.049 ? (
+  gfx_r = 1.0; gfx_g = 0.25; gfx_b = 0.25; // Bright Red warning
+) : (
+  gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9; // Light Grey / White
+);
+
+gfx_x = 4; gfx_y = text_y;
+peak_hold_val <= -59.9 ? gfx_drawstr("-Inf") : gfx_drawnumber(peak_hold_rel, 1);
+
+// Right Readout: Volume Adjustment (Right-Aligned, No + Sign)
+gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9;
+
+#tr_str = "";
+sprintf(#tr_str, "%.1f", slider1);
+
+// Measure string width and position against right margin
+gfx_measurestr(#tr_str, str_w, str_h);
+gfx_x = gfx_w - str_w - 4;
+gfx_y = text_y;
+gfx_drawstr(#tr_str);
+
+// --- DRAG TO ADJUST GAIN LOGIC (FINE VERTICAL) ---
+mouse_cap & 1 ? (
+  !last_cap ? (
+    start_y = mouse_y; 
+    start_val = slider1;
+    
+    // Double-Click reset check
+    time_precise() - last_click < 0.25 ? (
+      dbl_click = 1;
+      slider1 = 0;
+      sliderchange(slider1);
+    ) : dbl_click = 0;
+    
+    last_click = time_precise();
+  );
+  
+  dbl_click == 0 ? (
+    sens = (mouse_cap & 8) ? 0.01 : 0.05;
+    delta = (start_y - mouse_y) * sens;
+    slider1 = max(-24, min(24, start_val + delta));
+    sliderchange(slider1);
+  );
+);
+
+last_cap = mouse_cap & 1;
