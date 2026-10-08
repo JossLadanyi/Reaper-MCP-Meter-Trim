@@ -32,7 +32,7 @@ Unlike basic $1^{\text{st}}$-order smoothing filters that under-read musical tra
 1. Open REAPER.
 2. Go to **Options > Show REAPER resource path in explorer/finder**.
 3. Navigate to the `Effects` folder.
-4. Download and place the provided script into this directory).
+4. Download and place the provided script into this directory.
 5. In REAPER, open the FX browser, click **Actions > Rescan all plugins**, and the plugin will be ready to load.
 
 ---
