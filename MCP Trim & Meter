@@ -1,13 +1,14 @@
 /*
-   METER AND TRIM (Rose Hill Tribe)
+   TRIM AND METER (Rose Hill Tribe)
    VU (RMS) / Peak meter and integrated trim control plugin
    
    INSTALLATION: In REAPER, go to the Options menu › Show REAPER resource path in explorer/finder. Open the Effects folder and move this file there.
    Open REAPER’s FX browser (press Shift + F or click FX on a track). For the first time press F5 to refresh the plugin list. Search for plugin Meter & Trim
    
    USAGE: Insert it between any two plugins in your track's FX chain. In the Mixer (MCP), right-click the plugin in the slot list and check Show embedded UI in MCP
-   Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the right value
-   shows the gain. Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the meter readouts.
+   Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the center
+   value shows all-time peak, the right value shows the gain.
+   Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the meter readouts.
    To set the base level, open the plugin and adjust Base Level (dBFS). You can also switch between VU Meter mode (300ms RMS integration with mechanical ballistics) 
    and Peak Meter mode (instantaneous sample peak detection).
    
