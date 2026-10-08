@@ -3,7 +3,7 @@
    VU (RMS) / Peak meter and integrated trim control plugin
    
    INSTALLATION: In REAPER, go to the Options menu › Show REAPER resource path in explorer/finder. Open the Effects folder and move this file there.
-   Open REAPER’s FX browser (press Shift + F or click FX on a track). For the first time press F5 to refresh the plugin list. Search for plugin Meter & Trim
+   Open REAPER’s FX browser (press Shift + F or click FX on a track). For the first time press F5 to refresh the plugin list. Search for plugin Trim & Meter
    
    USAGE: Insert it between any two plugins in your track's FX chain. In the Mixer (MCP), right-click the plugin in the slot list and check Show embedded UI in MCP
    Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the center
