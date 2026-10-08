@@ -17,7 +17,7 @@
 ## Technical Background
 
 ### 1. VU Meter Ballistics ($2^{\text{nd}}$-Order ANSI C16.5 Emulation)
-Unlike basic $1^{\text{st}}$-order smoothing filters that under-read musical transients, Meter & Trim implements a true mass-spring-damper differential equation matching the **ANSI C16.5 specification** (similar to premium emulations like ZenoMOD and Blenheim):
+Unlike basic $1^{\text{st}}$-order smoothing filters that under-read musical transients, Trim & Meter implements a true mass-spring-damper differential equation matching the **ANSI C16.5 specification** (similar to premium emulations like ZenoMOD and Blenheim):
 * **Integration Window:** $300\text{ ms}$ time constant.
 * **Inertial Overshoot:** Models mechanical needle physics, accurately reflecting human loudness perception while capturing the natural $1.0\text{ dB}$ to $1.5\text{ dB}$ transient overshoot characteristic of hardware meters.
 * **Calibration:** Standardized $+3.0103\text{ dB}$ sine offset correction to ensure alignment with standard reference meters.
