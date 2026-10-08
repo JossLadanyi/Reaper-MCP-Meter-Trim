@@ -1,6 +1,6 @@
 # Trim & Meter for REAPER
 
-**Meter & Trim** is a high-performance, lean JSFX utility designed specifically for the REAPER Mixer Control Panel (MCP). It provides real-time, precision telemetry (switching between authentic $2^{\text{nd}}$-order mechanical VU ballistics and instantaneous peak detection) combined with direct drag-to-trim gain staging in a sleek, low-profile two-line layout.
+**Trim & Meter** is a high-performance, lean JSFX utility designed specifically for the REAPER Mixer Control Panel (MCP). It provides real-time, precision telemetry (switching between authentic $2^{\text{nd}}$-order mechanical VU ballistics and instantaneous peak detection) combined with direct drag-to-trim gain staging in a sleek, low-profile two-line layout.
 
 ---
 
