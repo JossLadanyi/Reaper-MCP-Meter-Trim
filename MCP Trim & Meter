@@ -7,7 +7,7 @@
    
    USAGE: Insert it between any two plugins in your track's FX chain. In the Mixer (MCP), right-click the plugin in the slot list and check Show embedded UI in MCP
    Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the right value
-   shows the gain. Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the gain back to 0.0.
+   shows the gain. Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the meter readouts.
    To set the base level, open the plugin and adjust Base Level (dBFS). You can also switch between VU Meter mode (300ms RMS integration with mechanical ballistics) 
    and Peak Meter mode (instantaneous sample peak detection).
    
@@ -194,12 +194,11 @@ mouse_cap & 1 ? (
     start_y = mouse_y; 
     start_val = slider1;
     
-    // Double-Click reset check
+    // Double-Click reset check (resets meters only)
     time_precise() - last_click < 0.25 ? (
       dbl_click = 1;
-      slider1 = 0;
-      sliderchange(slider1);
-      abs_peak_val = -100; // Reset center readout on double-click
+      abs_peak_val = -100;
+      peak_hold_val = -100;
     ) : dbl_click = 0;
     
     last_click = time_precise();
