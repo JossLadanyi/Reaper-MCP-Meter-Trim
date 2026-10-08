@@ -21,7 +21,7 @@
    overshoot behavior of physical VU movements matching ZenoMOD and Blenheim.
 */
 
-desc: Meter & Trim
+desc: Trim & Meter
 slider1:0<-24,24,0.1>Gain Trim (dB)
 slider2:-18<-36,0,1>Base Level (dBFS)
 slider3:0<0,1,1{VU (RMS),Peak}>Meter Mode
