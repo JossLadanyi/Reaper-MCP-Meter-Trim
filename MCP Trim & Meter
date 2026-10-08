@@ -42,6 +42,7 @@ last_play_state = 0;
 last_click = 0;
 dbl_click = 0;
 last_gfx_time = time_precise();
+max_db_frame = -150; // Tracks the highest peak between GUI frames
 
 @slider
 gain_amp = 10^(slider1 / 20);
@@ -55,6 +56,7 @@ mode = slider3; // 0 = VU, 1 = Peak
   vu_v = 0;
   peak_hold_val = -100;
   abs_peak_val = -100;
+  max_db_frame = -150;
 );
 last_play_state = play_state;
 
@@ -76,13 +78,16 @@ mode == 0 ? (
   vu_x += vu_v * dt_s;
   vu_x = max(0, vu_x);
   
-  // Calibrated VU Level (+3.0103dB sine offset)
-  current_db = 10 * (log10(max(vu_x, 0.000000000001)) / log10(10)) + 3.0103;
+  // Calibrated VU Level (+3.0103dB sine offset) (log10(10) division removed for efficiency)
+  current_db = 10 * log10(max(vu_x, 0.000000000001)) + 3.0103;
 ) : (
   // 2. PEAK METER MODE (Sample Peak Detection)
   inst_peak = max(abs(s0), abs(s1));
-  current_db = 20 * (log10(max(inst_peak, 0.000000000001)) / log10(10));
+  current_db = 20 * log10(max(inst_peak, 0.000000000001));
 );
+
+// Capture the highest value that passes through the sample block for the GUI to read
+max_db_frame = max(max_db_frame, current_db);
 
 @gfx 120 30
 // Set Font: Index=1, "Arial", Size=13, Weight=0 (Not Bold)
@@ -95,21 +100,25 @@ gfx_rect(0, 0, gfx_w, gfx_h);
 bar_h = 8;
 text_y = 10;
 
-db_rel = current_db - slider2; // Level relative to Base Level
+// Use max_db_frame to drive the visuals so we don't miss inter-frame transients
+db_rel = max_db_frame - slider2; // Level relative to Base Level
 
-// --- PEAK HOLD LOGIC (2.0 Seconds) ---
+// --- PEAK HOLD LOGIC (1.2 Seconds) ---
 now = time_precise();
 dt = max(0.001, now - last_gfx_time);
 last_gfx_time = now;
 
-current_db > peak_hold_val ? (
-  peak_hold_val = current_db;
+max_db_frame > peak_hold_val ? (
+  peak_hold_val = max_db_frame;
   peak_hold_time = now;
 ) : (
-  now - peak_hold_time > 2.0 ? ( // Holds peak value for 2.0 seconds
+  now - peak_hold_time > 1.2 ? ( // Holds peak value for 1.2 seconds
     peak_hold_val = max(-100, peak_hold_val - 12 * dt); // Smooth 12dB/s decay
   );
 );
+
+// Reset the frame tracker now that the GUI has registered it
+max_db_frame = -150; 
 
 // Calculate Peak Hold level relative to Base Level (0 = Target)
 peak_hold_rel = peak_hold_val - slider2;
@@ -200,6 +209,7 @@ mouse_cap & 1 ? (
       dbl_click = 1;
       abs_peak_val = -100;
       peak_hold_val = -100;
+      max_db_frame = -150;
     ) : dbl_click = 0;
     
     last_click = time_precise();
