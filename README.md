@@ -44,14 +44,13 @@ In the Reaper Mixer (MCP), right-click the plugin in the slot list and check **S
 The plugin renders in a compact 30px-height slot within the Mixer Control Panel (MCP):
 * **Top Line:** An 8px horizontal meter bar representing your signal relative to the Base Level threshold (Green up to $0.0$, Red above).
 * **Bottom Line:** 
-  * **Left Readout:** Measured signal level relative to target (e.g., `-1.5` or `2.1`). Turns bright red when strictly exceeding $0.0$.
+  * **Left Readout:** Measured signal level relative to target (e.g., `-1.5` or `2.1`). Turns bright red when exceeding $0.0$.
   * **Center Readout:** Peak signal level relative to target.
   * **Right Readout:** Current Gain Trim volume adjustment.
 
 ### Mouse Gestures & Controls
 * **Adjust Gain Trim:** Click and drag **vertically** anywhere on the plugin display in the mixer. Drag **up** to boost volume, drag **down** to cut volume.
 * **Ultra-Fine Adjustment:** Hold the **Shift** key while dragging for high-precision sub-decibel changes ($100\text{ pixels} = 1.0\text{ dB}$).
-* **Reset to 0 dB:** **Double-click** anywhere on the plugin display to instantly reset the Gain Trim to $0.0\text{ dB}$.
 * **Plugin Configuration Window:** Open the full plugin window to adjust sliders for **Gain Trim (dB)**, **Base Level (dBFS)**, and the **Meter Mode** toggle switch (`VU (RMS)` vs `Peak`).
 
 ---
