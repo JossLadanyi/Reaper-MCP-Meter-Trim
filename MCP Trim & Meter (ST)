@@ -1,4 +1,27 @@
-desc: Trim & Meter
+/*
+   TRIM AND METER STEREO (Rose Hill Tribe)
+   STEREO VU (RMS) / Peak meter and integrated trim control plugin
+   
+   INSTALLATION: In REAPER, go to the Options menu › Show REAPER resource path in explorer/finder. Open the Effects folder and move this file there.
+   Open REAPER’s FX browser (press Shift + F or click FX on a track). For the first time press F5 to refresh the plugin list. Search for plugin Trim & Meter
+   
+   USAGE: Insert it between any two plugins in your track's FX chain. In the Mixer (MCP), right-click the plugin in the slot list and check Show embedded UI in MCP
+   Live Level Bar: Displays a horizontal VU or Peak meter that spans from green to red as the signal passes through. The left value shows the current peak, the center
+   value shows all-time peak, the right value shows the gain.
+   Click anywhere on the meter bar in the mixer slot and drag up or down to adjust the gain. Double-Click: Resets the meter readouts.
+   To set the base level, open the plugin and adjust Base Level (dBFS). You can also switch between VU Meter mode (300ms RMS integration with mechanical ballistics) 
+   and Peak Meter mode (instantaneous sample peak detection).
+   
+   INTERNALS:
+   - VU sample peak calculations is standard 300 ms RMS integration across combined stereo channels (0.5 * (L^2 + R^2)).
+   - standard +3.0103 dB calibration factor is applied, so that a sine wave at your chosen Base Level (e.g., -18 dBFS) matches 0 VU on the reference ZenoMOD and 
+   Blenheim meters.
+   - the digital readout catches peak VU levels instantly, holds them for 2 seconds, and decays smoothly (15 dB/s), making levels clear and easy to read
+   - the integration engine uses a true 2nd-order mechanical needle simulation (zeta = 0.65, omega_n = 2pi / 0.300s). This captures the exact inertia, acceleration, and
+   overshoot behavior of physical VU movements matching ZenoMOD and Blenheim.
+*/
+
+desc: Trim & Meter Stereo
 slider1:0<-24,24,0.1>Gain Trim (dB)
 slider2:-18<-36,0,1>Base Level (dBFS)
 slider3:0<0,1,1{VU (RMS),Peak}>Meter Mode
@@ -35,6 +58,9 @@ mode != slider3 ? (
 mode = slider3;
 
 @block
+// Recalculate linear gain directly from slider1 on every audio block
+gain_amp = 10^(slider1 / 20);
+
 (play_state & 1) && !(last_play_state & 1) ? (
   vu_x_L = 0; vu_v_L = 0;
   vu_x_R = 0; vu_v_R = 0;
@@ -76,16 +102,16 @@ mode == 0 ? (
 max_db_frame_L = max(max_db_frame_L, current_db_L);
 max_db_frame_R = max(max_db_frame_R, current_db_R);
 
-@gfx 150 34
+@gfx 150 48
 gfx_setfont(1, "Arial", 13, 0);
-gfx_setfont(2, "Arial", 14, 'b');
+gfx_setfont(2, "Arial", 15, 'b');
 
 gfx_r = 0.10; gfx_g = 0.10; gfx_b = 0.10;
 gfx_rect(0, 0, gfx_w, gfx_h);
 
-bar_h = 14;
 bar_space = 2;
-bar_y_L = 2;
+bar_h = (gfx_h-bar_space*3)/2;
+bar_y_L = bar_space;
 bar_y_R = bar_y_L + bar_h + bar_space;
 
 gfx_setfont(1);
@@ -168,9 +194,8 @@ db_rel_R > 0.05 ? (
 gfx_r = 0.35; gfx_g = 0.35; gfx_b = 0.35;
 gfx_line(zero_x, bar_y_L, zero_x, bar_y_R + bar_h);
 
-gfx_setfont(1);
-
 // Left Channel: Current Peak (Left-aligned on Left bar)
+gfx_setfont(1);
 peak_hold_rel_L > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
 gfx_x = 5; gfx_y = text_y_L;
 peak_hold_val_L <= -59.9 ? gfx_drawstr("-Inf") : gfx_drawnumber(peak_hold_rel_L, 1);
@@ -197,7 +222,7 @@ gfx_x = floor((gfx_w - pk_w_R) / 2); gfx_y = text_y_R;
 gfx_drawstr(#pk_str_R);
 
 // --- TRIM GAIN VALUE (Bold, Larger, Centered Vertically on the Right) ---
-gfx_setfont(2, "Arial", 14, 'b');
+gfx_setfont(2);
 gfx_r = 1.0; gfx_g = 1.0; gfx_b = 1.0;
 
 #tr_str = "";
@@ -228,7 +253,7 @@ mouse_cap & 1 ? (
     sens = (mouse_cap & 8) ? 0.01 : 0.05;
     delta = (start_y - mouse_y) * sens;
     slider1 = max(-24, min(24, start_val + delta));
-    sliderchange(slider1);
+    slider_automate(slider1);
   );
 );
 

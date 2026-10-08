@@ -1,5 +1,5 @@
 /*
-   TRIM AND METER (Rose Hill Tribe)
+   TRIM AND METER MONO (Rose Hill Tribe)
    VU (RMS) / Peak meter and integrated trim control plugin
    
    INSTALLATION: In REAPER, go to the Options menu › Show REAPER resource path in explorer/finder. Open the Effects folder and move this file there.
@@ -21,7 +21,7 @@
    overshoot behavior of physical VU movements matching ZenoMOD and Blenheim.
 */
 
-desc: Trim & Meter
+desc: Trim & Meter Mono
 slider1:0<-24,24,0.1>Gain Trim (dB)
 slider2:-18<-36,0,1>Base Level (dBFS)
 slider3:0<0,1,1{VU (RMS),Peak}>Meter Mode
@@ -50,6 +50,9 @@ mode != slider3 ? abs_peak_val = -100; // Reset center peak tracker on mode swit
 mode = slider3; // 0 = VU, 1 = Peak
 
 @block
+// Recalculate linear gain directly from slider1 on every audio block
+gain_amp = 10^(slider1 / 20);
+
 // Reset meter ballistics and peak tracking when playback starts
 (play_state & 1) && !(last_play_state & 1) ? (
   vu_x = 0;
@@ -89,16 +92,19 @@ mode == 0 ? (
 // Capture the highest value that passes through the sample block for the GUI to read
 max_db_frame = max(max_db_frame, current_db);
 
-@gfx 120 30
+@gfx 120 21
 // Set Font: Index=1, "Arial", Size=13, Weight=0 (Not Bold)
 gfx_setfont(1, "Arial", 13, 0); 
+gfx_setfont(2, "Arial", 15, 'b');
 
 // Dark Background
 gfx_r = 0.12; gfx_g = 0.12; gfx_b = 0.12;
 gfx_rect(0, 0, gfx_w, gfx_h);
 
-bar_h = 8;
-text_y = 10;
+bar_h = gfx_h-4;
+gfx_setfont(1);
+text_y = 2 + floor((bar_h - gfx_texth) / 2);
+
 
 // Use max_db_frame to drive the visuals so we don't miss inter-frame transients
 db_rel = max_db_frame - slider2; // Level relative to Base Level
@@ -144,14 +150,14 @@ green_pct = min(val_pct, zero_pct);
 green_w = (gfx_w - 4) * green_pct;
 
 // Green Segment (up to Base Level 0)
-gfx_r = 0.2; gfx_g = 0.8; gfx_b = 0.2;
+gfx_r = 0.12; gfx_g = 0.52; gfx_b = 0.15;
 gfx_rect(2, 2, green_w, bar_h);
 
 // Red Segment (Overshoot above Base Level 0)
 db_rel > 0.05 ? (
   red_pct = min(val_pct, 1) - zero_pct;
   red_w = (gfx_w - 4) * red_pct;
-  gfx_r = 0.9; gfx_g = 0.1; gfx_b = 0.1;
+  gfx_r = 0.65; gfx_g = 0.12; gfx_b = 0.12;
   gfx_rect(2 + green_w, 2, red_w, bar_h);
 );
 
@@ -187,12 +193,14 @@ gfx_y = text_y;
 gfx_drawstr(#pk_str);
 
 // Right Readout: Volume Adjustment (Right-Aligned, No + Sign)
+gfx_setfont(2);
 gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9;
 
 #tr_str = "";
 sprintf(#tr_str, "%.1f", slider1);
 
 // Measure string width and position against right margin
+text_y = 2 + floor((bar_h - gfx_texth) / 2);
 gfx_measurestr(#tr_str, str_w, str_h);
 gfx_x = gfx_w - str_w - 4;
 gfx_y = text_y;
@@ -219,7 +227,7 @@ mouse_cap & 1 ? (
     sens = (mouse_cap & 8) ? 0.01 : 0.05;
     delta = (start_y - mouse_y) * sens;
     slider1 = max(-24, min(24, start_val + delta));
-    sliderchange(slider1);
+    slider_automate(slider1);
   );
 );
 
