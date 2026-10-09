@@ -9,7 +9,7 @@
 * **Dual Metering Engines:** Toggle instantly between **VU (RMS)** mode with mechanical ballistics and **Peak** mode for sample-accurate transient tracking.
 * **Configurable Base Level:** Set your target operating reference level (e.g., $-18\text{ dBFS}$, $-12\text{ dBFS}$, $0\text{ dBFS}$) dynamically.
 * **Relative Level Readout & Threshold Alert:** The digital display tracks levels relative to your Base Level ($0.0$ target), automatically shifting to a bright red warning color when overshooting the threshold.
-* **Intelligent Visual Feedback:** Features a dual-zone horizontal bar (Green up to target, Red on overshoot) paired with a 2.0-second peak-hold decay.
+* **Intelligent Visual Feedback:** Features a dual-zone horizontal bar (Green up to target, Red on overshoot) paired with a 1.2-second peak-hold decay.
 * **Direct Mixer Gestures:** Fine vertical drag-to-trim volume adjustment directly inside the MCP slot, with a Shift-modifier for ultra-fine sub-decibel precision and a double-click reset.
 
 ---
