@@ -1,6 +1,6 @@
 # Trim & Meter for REAPER
 
-**Trim & Meter** is a high-performance, lean JSFX utility designed specifically for the REAPER Mixer Control Panel (MCP). It provides real-time, precision telemetry (switching between authentic $2^{\text{nd}}$-order mechanical VU ballistics and instantaneous peak detection) combined with direct drag-to-trim gain staging in a sleek, low-profile two-line layout.
+**Trim & Meter** is a high-performance, lean JSFX utility designed specifically for the REAPER Mixer Control Panel (MCP). It provides real-time, precision telemetry (switching between authentic $2^{\text{nd}}$-order mechanical VU ballistics and instantaneous peak detection) combined with direct drag-to-trim gain staging in a sleek, low-profile layout.
 
 ---
 
@@ -10,7 +10,8 @@
 * **Configurable Base Level:** Set your target operating reference level (e.g., $-18\text{ dBFS}$, $-12\text{ dBFS}$, $0\text{ dBFS}$) dynamically.
 * **Relative Level Readout & Threshold Alert:** The digital display tracks levels relative to your Base Level ($0.0$ target), automatically shifting to a bright red warning color when overshooting the threshold.
 * **Intelligent Visual Feedback:** Features a dual-zone horizontal bar (Green up to target, Red on overshoot) paired with a 1.2-second peak-hold decay.
-* **Direct Mixer Gestures:** Fine vertical drag-to-trim volume adjustment directly inside the MCP slot, with a Shift-modifier for ultra-fine sub-decibel precision and a double-click reset.
+* **Direct Mixer Gestures:** Fine vertical drag-to-trim volume adjustment directly inside the MCP slot, with a Shift-modifier for ultra-fine precision and a double-click reset.
+* **Mono and Stereo:** separate mono and stereo plugin for optimized layout.
 
 ---
 
@@ -50,7 +51,9 @@ The plugins render in a compact 21(mono) / 48(stereo) px-height slot within the 
 
 ### Mouse Gestures & Controls
 * **Adjust Gain Trim:** Click and drag **vertically** anywhere on the plugin display in the mixer. Drag **up** to boost volume, drag **down** to cut volume.
-* **Ultra-Fine Adjustment:** Hold the **Shift** key while dragging for high-precision sub-decibel changes ($100\text{ pixels} = 1.0\text{ dB}$).
+* **Ultra-Fine Adjustment:** Hold the **Shift** key while dragging for high-precision changes ($100\text{ pixels} = 1.0\text{ dB}$).
+* **Reset to 0 dB:** **Double-click** on Trim value on the plugin display to instantly reset the Gain Trim to $0.0\text{ dB}$.
+* **Reset Meters:** Double click outside Trim value to reset meters.
 * **Plugin Configuration Window:** Open the full plugin window to adjust sliders for **Gain Trim (dB)**, **Base Level (dBFS)**, and the **Meter Mode** toggle switch (`VU (RMS)` vs `Peak`).
 
 ---
