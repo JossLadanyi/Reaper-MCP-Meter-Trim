@@ -176,7 +176,7 @@ peak_hold_rel > 0.049 ? (
 );
 
 gfx_x = 4; gfx_y = text_y;
-peak_hold_val <= -59.9 ? gfx_drawstr("-Inf") : gfx_drawnumber(peak_hold_rel, 1);
+peak_hold_val <= -59.9 ? gfx_drawstr("") : gfx_drawnumber(peak_hold_rel, 1);
 
 // Center Readout: Exact copy of maximum left readout value (Resets on Play / Double-Click)
 abs_peak_val > 0.049 ? (
@@ -186,7 +186,7 @@ abs_peak_val > 0.049 ? (
 );
 
 #pk_str = "";
-abs_peak_val <= -59.9 ? sprintf(#pk_str, "-Inf") : sprintf(#pk_str, "%.1f", abs_peak_val);
+abs_peak_val <= -59.9 ? sprintf(#pk_str, "") : sprintf(#pk_str, "%.1f", abs_peak_val);
 gfx_measurestr(#pk_str, pk_w, pk_h);
 gfx_x = floor((gfx_w - pk_w) / 2);
 gfx_y = text_y;

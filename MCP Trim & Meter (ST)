@@ -198,17 +198,17 @@ gfx_line(zero_x, bar_y_L, zero_x, bar_y_R + bar_h);
 gfx_setfont(1);
 peak_hold_rel_L > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
 gfx_x = 5; gfx_y = text_y_L;
-peak_hold_val_L <= -59.9 ? gfx_drawstr("-Inf") : gfx_drawnumber(peak_hold_rel_L, 1);
+peak_hold_val_L <= -59.9 ? gfx_drawstr("") : gfx_drawnumber(peak_hold_rel_L, 1);
 
 // Right Channel: Current Peak (Left-aligned on Right bar)
 peak_hold_rel_R > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
 gfx_x = 5; gfx_y = text_y_R;
-peak_hold_val_R <= -59.9 ? gfx_drawstr("-Inf") : gfx_drawnumber(peak_hold_rel_R, 1);
+peak_hold_val_R <= -59.9 ? gfx_drawstr("") : gfx_drawnumber(peak_hold_rel_R, 1);
 
 // Left Channel: All-Time Peak (Centered on Left bar)
 abs_peak_val_L > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
 #pk_str_L = "";
-abs_peak_val_L <= -59.9 ? sprintf(#pk_str_L, "-Inf") : sprintf(#pk_str_L, "%.1f", abs_peak_val_L);
+abs_peak_val_L <= -59.9 ? sprintf(#pk_str_L, "") : sprintf(#pk_str_L, "%.1f", abs_peak_val_L);
 gfx_measurestr(#pk_str_L, pk_w_L, pk_h_L);
 gfx_x = floor((gfx_w - pk_w_L) / 2); gfx_y = text_y_L;
 gfx_drawstr(#pk_str_L);
@@ -216,7 +216,7 @@ gfx_drawstr(#pk_str_L);
 // Right Channel: All-Time Peak (Centered on Right bar)
 abs_peak_val_R > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
 #pk_str_R = "";
-abs_peak_val_R <= -59.9 ? sprintf(#pk_str_R, "-Inf") : sprintf(#pk_str_R, "%.1f", abs_peak_val_R);
+abs_peak_val_R <= -59.9 ? sprintf(#pk_str_R, "") : sprintf(#pk_str_R, "%.1f", abs_peak_val_R);
 gfx_measurestr(#pk_str_R, pk_w_R, pk_h_R);
 gfx_x = floor((gfx_w - pk_w_R) / 2); gfx_y = text_y_R;
 gfx_drawstr(#pk_str_R);
