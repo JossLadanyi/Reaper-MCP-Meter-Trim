@@ -41,10 +41,10 @@ Unlike basic $1^{\text{st}}$-order smoothing filters that under-read musical tra
 In the Reaper Mixer (MCP), right-click the plugin in the slot list and check **Show embedded UI in MCP**
 
 ### Mixer Layout
-The plugin renders in a compact 30px-height slot within the Mixer Control Panel (MCP):
-* **Top Line:** An 8px horizontal meter bar representing your signal relative to the Base Level threshold (Green up to $0.0$, Red above).
-* **Bottom Line:** 
-  * **Left Readout:** Measured signal level relative to target (e.g., `-1.5` or `2.1`). Turns bright red when exceeding $0.0$.
+The plugins render in a compact 21(mono) / 48(stereo) px-height slot within the Mixer Control Panel (MCP):
+* One or two narrow horizontal meter bars representing your signal relative to the Base Level threshold (Green up to $0.0$, Red above).
+* above the bars
+  * **Left Readout:** Measured signal level relative to target (e.g., `-1.5` or `2.1`). Turns red when exceeding $0.0$.
   * **Center Readout:** Peak signal level relative to target.
   * **Right Readout:** Current Gain Trim volume adjustment.
 
