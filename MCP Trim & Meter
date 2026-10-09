@@ -192,17 +192,17 @@ gfx_x = floor((gfx_w - pk_w) / 2);
 gfx_y = text_y;
 gfx_drawstr(#pk_str);
 
-// Right Readout: Volume Adjustment (Right-Aligned, No + Sign)
+// Right Readout: Volume Adjustment
 gfx_setfont(2);
 gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9;
 
 #tr_str = "";
 sprintf(#tr_str, "%.1f", slider1);
 
-// Measure string width and position against right margin
 text_y = 2 + floor((bar_h - gfx_texth) / 2);
 gfx_measurestr(#tr_str, str_w, str_h);
-gfx_x = gfx_w - str_w - 4;
+tr_x = gfx_w - str_w - 4;
+gfx_x = tr_x;
 gfx_y = text_y;
 gfx_drawstr(#tr_str);
 
@@ -212,21 +212,35 @@ mouse_cap & 1 ? (
     start_y = mouse_y; 
     start_val = slider1;
     
-    // Double-Click reset check (resets meters only)
+    // Double-Click Check (within 0.25s)
     time_precise() - last_click < 0.25 ? (
       dbl_click = 1;
-      abs_peak_val = -100;
-      peak_hold_val = -100;
-      max_db_frame = -150;
-    ) : dbl_click = 0;
+      
+      // ONLY reset trim gain if double-clicked directly on the trim readout area
+      mouse_x >= (tr_x - 6) ? (
+        slider1 = 0.0;
+        slider_automate(slider1);
+      ) : (
+        // Double-clicked on the meter bar -> reset peak hold readouts
+        abs_peak_val = -100;
+        peak_hold_val = -100;
+        max_db_frame = -150;
+      );
+    ) : (
+      dbl_click = 0;
+    );
     
     last_click = time_precise();
   );
   
   dbl_click == 0 ? (
+    // Lower sensitivity with SHIFT (0.01 vs 0.05)
     sens = (mouse_cap & 8) ? 0.01 : 0.05;
-    delta = (start_y - mouse_y) * sens;
-    slider1 = max(-24, min(24, start_val + delta));
+    
+    // Both modes strictly round to 1 decimal place (0.1 dB steps)
+    raw_val = floor((start_val + (start_y - mouse_y) * sens) * 10 + 0.5) * 0.1;
+    abs(raw_val) < 0.001 ? raw_val = 0.0; // Prevent "-0.0" display
+    slider1 = max(-24, min(24, raw_val));
     slider_automate(slider1);
   );
 );

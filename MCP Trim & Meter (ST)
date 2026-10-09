@@ -228,8 +228,10 @@ gfx_r = 1.0; gfx_g = 1.0; gfx_b = 1.0;
 #tr_str = "";
 sprintf(#tr_str, "%.1f", slider1);
 gfx_measurestr(#tr_str, str_w, str_h);
-gfx_x = gfx_w - str_w - 6;
-gfx_y = floor((bar_y_L + (bar_y_R + bar_h) - str_h) / 2);
+tr_x = gfx_w - str_w - 6;
+tr_y = floor((bar_y_L + (bar_y_R + bar_h) - str_h) / 2);
+gfx_x = tr_x;
+gfx_y = tr_y;
 gfx_drawstr(#tr_str);
 
 // --- DRAG TO ADJUST GAIN LOGIC ---
@@ -238,21 +240,35 @@ mouse_cap & 1 ? (
     start_y = mouse_y; 
     start_val = slider1;
     
-    // Double-Click reset check (resets meters)
+    // Double-Click Check (within 0.25s)
     time_precise() - last_click < 0.25 ? (
       dbl_click = 1;
-      abs_peak_val_L = -100; abs_peak_val_R = -100;
-      peak_hold_val_L = -100; peak_hold_val_R = -100;
-      max_db_frame_L = -150; max_db_frame_R = -150;
-    ) : dbl_click = 0;
+      
+      // ONLY reset trim gain if double-clicked directly on the trim readout area
+      mouse_x >= (tr_x - 6) ? (
+        slider1 = 0.0;
+        slider_automate(slider1);
+      ) : (
+        // Double-clicked on the meter bars -> reset peak hold readouts
+        abs_peak_val_L = -100; abs_peak_val_R = -100;
+        peak_hold_val_L = -100; peak_hold_val_R = -100;
+        max_db_frame_L = -150; max_db_frame_R = -150;
+      );
+    ) : (
+      dbl_click = 0;
+    );
     
     last_click = time_precise();
   );
   
   dbl_click == 0 ? (
+    // Lower sensitivity with SHIFT (0.01 vs 0.05)
     sens = (mouse_cap & 8) ? 0.01 : 0.05;
-    delta = (start_y - mouse_y) * sens;
-    slider1 = max(-24, min(24, start_val + delta));
+    
+    // Both modes strictly round to 1 decimal place (0.1 dB steps)
+    raw_val = floor((start_val + (start_y - mouse_y) * sens) * 10 + 0.5) * 0.1;
+    abs(raw_val) < 0.001 ? raw_val = 0.0; // Prevent "-0.0" display
+    slider1 = max(-24, min(24, raw_val));
     slider_automate(slider1);
   );
 );
