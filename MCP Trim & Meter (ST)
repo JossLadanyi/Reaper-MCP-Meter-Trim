@@ -205,22 +205,45 @@ peak_hold_rel_R > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g
 gfx_x = 5; gfx_y = text_y_R;
 peak_hold_val_R <= -59.9 ? gfx_drawstr("") : gfx_drawnumber(peak_hold_rel_R, 1);
 
-// Left Channel: All-Time Peak (Centered on Left bar)
-abs_peak_val_L > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
-#pk_str_L = "";
-abs_peak_val_L <= -59.9 ? sprintf(#pk_str_L, "") : sprintf(#pk_str_L, "%.1f", abs_peak_val_L);
-gfx_measurestr(#pk_str_L, pk_w_L, pk_h_L);
-gfx_x = floor((gfx_w - pk_w_L) / 2); gfx_y = text_y_L;
-gfx_drawstr(#pk_str_L);
+// --- Center Readouts (Hover for Info, else Max Peaks) ---
 
-// Right Channel: All-Time Peak (Centered on Right bar)
-abs_peak_val_R > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
-#pk_str_R = "";
-abs_peak_val_R <= -59.9 ? sprintf(#pk_str_R, "") : sprintf(#pk_str_R, "%.1f", abs_peak_val_R);
-gfx_measurestr(#pk_str_R, pk_w_R, pk_h_R);
-gfx_x = floor((gfx_w - pk_w_R) / 2); gfx_y = text_y_R;
-gfx_drawstr(#pk_str_R);
+// Check if mouse is hovering over the middle third AND inside the vertical bounds
+(mouse_x > gfx_w/3 && mouse_x < (gfx_w*2)/3 && mouse_y >= 0 && mouse_y <= gfx_h) ? (
+  // HOVER STATE: Show Meter Mode and Base Level on both bars
+  #info_str = "";
+  mode == 0 ? sprintf(#info_str, "VU(%d)", slider2) : sprintf(#info_str, "PK(%d)", slider2);
+  gfx_r = 0.7; gfx_g = 0.7; gfx_b = 0.7; // Dim grey
+  
+  gfx_measurestr(#info_str, info_w, info_h);
+  info_x = floor((gfx_w - info_w) / 2);
+  
+  // Draw on Left (Top) bar
+  gfx_x = info_x; gfx_y = text_y_L;
+  gfx_drawstr(#info_str);
+  
+  // Draw on Right (Bottom) bar
+  gfx_x = info_x; gfx_y = text_y_R;
+  gfx_drawstr(#info_str);
+  
+) : (
+  // NORMAL STATE: Show Max Peaks
+  
+  // Left Channel Max Peak
+  abs_peak_val_L > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
+  #pk_str_L = "";
+  abs_peak_val_L <= -59.9 ? sprintf(#pk_str_L, "") : sprintf(#pk_str_L, "%.1f", abs_peak_val_L);
+  gfx_measurestr(#pk_str_L, pk_w_L, pk_h_L);
+  gfx_x = floor((gfx_w - pk_w_L) / 2); gfx_y = text_y_L;
+  gfx_drawstr(#pk_str_L);
 
+  // Right Channel Max Peak
+  abs_peak_val_R > 0.049 ? (gfx_r=1.0; gfx_g=0.3; gfx_b=0.3) : (gfx_r=0.95; gfx_g=0.95; gfx_b=0.95);
+  #pk_str_R = "";
+  abs_peak_val_R <= -59.9 ? sprintf(#pk_str_R, "") : sprintf(#pk_str_R, "%.1f", abs_peak_val_R);
+  gfx_measurestr(#pk_str_R, pk_w_R, pk_h_R);
+  gfx_x = floor((gfx_w - pk_w_R) / 2); gfx_y = text_y_R;
+  gfx_drawstr(#pk_str_R);
+);
 // --- TRIM GAIN VALUE (Bold, Larger, Centered Vertically on the Right) ---
 gfx_setfont(2);
 gfx_r = 1.0; gfx_g = 1.0; gfx_b = 1.0;

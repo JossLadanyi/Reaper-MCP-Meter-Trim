@@ -178,15 +178,24 @@ peak_hold_rel > 0.049 ? (
 gfx_x = 4; gfx_y = text_y;
 peak_hold_val <= -59.9 ? gfx_drawstr("") : gfx_drawnumber(peak_hold_rel, 1);
 
-// Center Readout: Exact copy of maximum left readout value (Resets on Play / Double-Click)
-abs_peak_val > 0.049 ? (
-  gfx_r = 1.0; gfx_g = 0.25; gfx_b = 0.25; // Bright Red warning (same red as left)
+// --- Center Readout (Hover for Info, else Max Peak) ---
+#pk_str = "";
+
+// Check if mouse is hovering over the middle third AND inside the vertical bounds
+(mouse_x > gfx_w/3 && mouse_x < (gfx_w*2)/3 && mouse_y >= 0 && mouse_y <= gfx_h) ? (
+  // HOVER STATE: Show Meter Mode and Base Level
+  mode == 0 ? sprintf(#pk_str, "VU(%d)", slider2) : sprintf(#pk_str, "PK(%d)", slider2);
+  gfx_r = 0.7; gfx_g = 0.7; gfx_b = 0.7; // Slightly dimmer grey to indicate info text
 ) : (
-  gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9; // Light Grey / White
+  // NORMAL STATE: Show Max Peak
+  abs_peak_val > 0.049 ? (
+    gfx_r = 1.0; gfx_g = 0.25; gfx_b = 0.25; // Bright Red warning
+  ) : (
+    gfx_r = 0.9; gfx_g = 0.9; gfx_b = 0.9; // Light Grey / White
+  );
+  abs_peak_val <= -59.9 ? sprintf(#pk_str, "") : sprintf(#pk_str, "%.1f", abs_peak_val);
 );
 
-#pk_str = "";
-abs_peak_val <= -59.9 ? sprintf(#pk_str, "") : sprintf(#pk_str, "%.1f", abs_peak_val);
 gfx_measurestr(#pk_str, pk_w, pk_h);
 gfx_x = floor((gfx_w - pk_w) / 2);
 gfx_y = text_y;
