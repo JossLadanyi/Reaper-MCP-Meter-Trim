@@ -54,6 +54,7 @@ The plugins render in a compact 21(mono) / 48(stereo) px-height slot within the 
 * **Ultra-Fine Adjustment:** Hold the **Shift** key while dragging for high-precision changes ($100\text{ pixels} = 1.0\text{ dB}$).
 * **Reset to 0 dB:** **Double-click** on Trim value on the plugin display to instantly reset the Gain Trim to $0.0\text{ dB}$.
 * **Reset Meters:** Double click outside Trim value to reset meters.
+* **Show Mode and Base Level:** Mode and base level values are displayed when mouse hovers over Max Peak. 
 * **Plugin Configuration Window:** Open the full plugin window to adjust sliders for **Gain Trim (dB)**, **Base Level (dBFS)**, and the **Meter Mode** toggle switch (`VU (RMS)` vs `Peak`).
 
 ---
